@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 
 
@@ -20,7 +21,9 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email });
         if (user) {
-            if (password === user.password) {
+            // comparing hash password
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch) {
                 res.send({ msg: "Login Successfull", user: user })
             }
             else {
@@ -66,7 +69,12 @@ const register = async (req, res) => {
         }
         else {
             if (username && password) {
-                const newUser = await User.create(req.body);
+
+                const newUser = new User(req.body);
+
+                // hashing of password using pre method in models
+                newUser.save();
+                // const newUser = await User.save(req.body);
                 res.send({ msg: 'registered successfully', newUser });
             }
             else {

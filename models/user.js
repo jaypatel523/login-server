@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 // const { emailValidation } = require('./user');
 
 const UserSchema = new mongoose.Schema({
@@ -19,5 +20,16 @@ const UserSchema = new mongoose.Schema({
         min: [6, 'too few eggs']
     }
 })
+
+
+// hashing password
+UserSchema.pre("save", async function (req, res, next) {
+    // console.log("insider pre method");
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 12);
+    }
+    next();
+})
+
 
 module.exports = mongoose.model('user', UserSchema);
