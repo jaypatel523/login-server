@@ -21,9 +21,19 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email });
         if (user) {
+
             // comparing hash password
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
+
+                // console.log(user);
+                const token = await user.generateToken();
+                res.cookie("jwttoken", token, {
+                    expires: new Date(Date.now() + 2589200000),
+                    httpOnly: true
+                })
+
+
                 res.send({ msg: "Login Successfull", user: user })
             }
             else {
@@ -45,7 +55,6 @@ const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
         // console.log(req.body);
-
 
         // validation 
         if (!usernameValidation(username)) {
@@ -71,10 +80,9 @@ const register = async (req, res) => {
             if (username && password) {
 
                 const newUser = new User(req.body);
-
                 // hashing of password using pre method in models
-                newUser.save();
-                // const newUser = await User.save(req.body);
+                await newUser.save();
+                console.log(newUser);
                 res.send({ msg: 'registered successfully', newUser });
             }
             else {
@@ -83,8 +91,10 @@ const register = async (req, res) => {
         }
     }
     catch (error) {
-        res.send({ msg: error.message });
+        res.send({ msg: error });
     }
 }
+
+
 
 module.exports = { login, register, emailValidation };
