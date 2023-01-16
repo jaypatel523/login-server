@@ -21,7 +21,8 @@ app.get('/home', (req, res) => {
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
-        app.listen(process.env.PORT, () => console.log(`server is running... ${process.env.PORT}`));
+        console.log(process.env.PORT);
+        app.listen(process.env.PORT, () => console.log(`server is running...`));
     } catch (error) {
         console.log(error);
     }
